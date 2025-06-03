@@ -1,11 +1,11 @@
-# Studi Eksperimen Vision Transformer pada Klasifikasi Kucing vs Anjing
+# Vision Transformer Image Classification Cats vs Dogs
 
 ## 1. Nama dan Deskripsi Task
 
-**Task:** Klasifikasi gambar kucing vs anjing menggunakan arsitektur Vision Transformer (ViT) dengan berbagai konfigurasi (jumlah attention heads, dimensi embedding, ukuran patch, dan perbandingan RoPE).
+**Task:** Image Classification
 
 **Deskripsi:**  
-Studi ini membandingkan performa beberapa varian Vision Transformer pada tugas klasifikasi dua kelas (kucing dan anjing). Eksperimen dilakukan untuk memahami pengaruh komponen arsitektur utama seperti jumlah attention heads, dimensi embedding, ukuran patch, serta positional encoding (RoPE vs standar).
+Mengklasifikasikan gambar sesuai dengan hewan yang berada pada gambar tersebut. Label 0 sebagai kucing, label 1 sebagai anjing.
 
 ## 2. Nama Dataset, Link, Statistik, dan Contoh
 
