@@ -1,43 +1,80 @@
-# Vision Transformer Image Classification Cats vs Dogs
+# Vision Transformer Image Captioning on MSCOCO
 
-## 1. Nama dan Deskripsi Task
+## 1. Task Description
 
-**Task:** Image Classification
-
+**Task:** Image Captioning  
 **Deskripsi:**  
-Mengklasifikasikan gambar sesuai dengan hewan yang berada pada gambar tersebut. Label 0 sebagai kucing, label 1 sebagai anjing.
+Menghasilkan deskripsi teks (caption) otomatis untuk gambar menggunakan model Vision Transformer (ViT) dengan decoder Transformer.
 
-## 2. Nama Dataset, Link, Statistik, dan Contoh
+## 2. Dataset
 
-**Nama Dataset:** Cats vs Dogs  
-**Sumber:** [HuggingFace Datasets - cats_vs_dogs](https://huggingface.co/datasets/cats_vs_dogs)
-
-**Statistik Dataset:**
-- Total gambar: 23.262
-- Jumlah kelas: 2 (kucing = 0, anjing = 1)
-- Proporsi data:  
-  - Train: ~90%  
-  - Test: ~10%  
-- Semua gambar yang digunakan memiliki 3 channel (RGB).
-
-**Contoh Isi Dataset:**
-
-![sample_images](attachment/sample_images.png)
-
+- **Nama:** MSCOCO (HuggingFaceM4/COCO)
+- **Sumber:** [HuggingFace Datasets - HuggingFaceM4/COCO](https://huggingface.co/datasets/HuggingFaceM4/COCO)
+- **Total gambar:** ~21.000 (train), ~1.500 (val) (subset digunakan)
+- **Keterangan:**  
+  - Hanya gambar RGB yang digunakan.
+  - Setiap gambar memiliki satu caption (caption utama).
+  - Gambar diresize ke 224x224 pixel.
+  - Caption di-tokenisasi dengan custom tokenizer (vocab size ~2027, min_freq=5).
+  - Split train/val mengikuti dataset asli.
 
 **Contoh kode akses data:**
 ```python
 from datasets import load_dataset
-dataset = load_dataset("cats_vs_dogs")
-sample = dataset['train'][0]
-print(sample['image'])  # PIL Image
-print(sample['labels']) # 0 (kucing) atau 1 (anjing)
+dataset = load_dataset("HuggingFaceM4/COCO", trust_remote_code=True)
 ```
 
-**Distribusi kelas (setelah filter RGB):**
-- Kucing: sekitar 11.682 gambar
-- Anjing: sekitar 11.580 gambar
+## 3. Preprocessing
+
+- Filter hanya gambar RGB.
+- Resize gambar ke 224x224 dan normalisasi (mean/std ImageNet).
+- Tokenisasi caption dengan custom tokenizer (lowercase, hapus tanda baca, min_freq=5).
+- Padding dan truncation caption ke panjang 50 token.
+
+## 4. Model
+
+- **Arsitektur:** Vision Transformer (ViT) encoder + Transformer decoder.
+- **Eksperimen:**  
+  - Baseline (embed_dim=256, patch_size=16, 8 heads)
+  - Small Embedding (embed_dim=128)
+  - Small Patch (patch_size=8)
+  - More Heads (num_heads=16)
+  - RoPE (Rotary Positional Embedding)
+- **Tokenisasi:** Custom tokenizer (bukan HuggingFace tokenizer).
+
+## 5. Training
+
+- **Optimizer:** AdamW
+- **Learning Rate:** 1e-4
+- **Epochs:** 10
+- **Batch Size:** 32
+- **Loss:** CrossEntropyLoss (label smoothing 0.1, ignore padding)
+- **Evaluasi:** CIDEr metric (HuggingFace evaluate)
+
+## 6. Evaluasi & Visualisasi
+
+- **Metode evaluasi:**  
+  - Loss (train/val)
+  - CIDEr score (val)
+- **Visualisasi:**  
+  - Kurva loss dan CIDEr per epoch untuk semua model.
+  - Bar chart best CIDEr tiap model.
+  - Contoh caption hasil generate dari semua model pada gambar yang sama.
+
+## 7. Cara Menjalankan
+
+1. Install dependensi:
+    - `transformers`
+    - `datasets`
+    - `torch`
+    - `matplotlib`
+    - `evaluate`
+    - `tqdm`
+2. Jalankan notebook `visual-transformers-deep-learning.ipynb` untuk seluruh pipeline (preprocessing, training, evaluasi, visualisasi).
+3. Hasil model dan metrik disimpan otomatis (checkpoint dan JSON).
 
 ---
+
 **Catatan:**  
-Dataset diunduh otomatis dari HuggingFace Datasets. Seluruh preprocessing dan pembagian train/test dilakukan di notebook.
+Seluruh pipeline (preprocessing, training, evaluasi, visualisasi, perbandingan model) diimplementasikan di notebook utama (`visual-transformers-deep-learning.ipynb`).  
+Silakan buka notebook untuk detail kode, eksperimen, dan hasil.
